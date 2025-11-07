@@ -22,17 +22,32 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Certificate Generation**: Download membership certificates
 
 ### 🛠️ Technical Stack
-- **Frontend**: React 18 with Vite
+
+#### Frontend
+- **Framework**: React 18 with Vite
 - **Styling**: Tailwind CSS with custom animations
 - **Icons**: Lucide React (replaced all emojis)
-- **Animations**: Framer Motion
+- **Animations**: Framer Motion, GSAP
 - **3D Effects**: React Parallax Tilt
+- **Routing**: React Router v6
+
+#### Backend
+- **Runtime**: Node.js with Express.js
+- **Payment Gateway**: Razorpay SDK
+- **Validation**: Express Validator
+- **Security**: Helmet, CORS, Rate Limiting
+- **Logging**: Morgan
+
+#### Database & Services
 - **Database**: Firebase Firestore
 - **Authentication**: Firebase Auth
-- **Storage**: Firebase Storage
+- **Storage**: Firebase Storage & Cloudinary
+- **Email**: EmailJS
 - **Payments**: Razorpay
 
 ## 📦 Installation
+
+### Frontend Setup
 
 1. **Clone the repository**
 ```bash
@@ -54,14 +69,17 @@ VITE_FIREBASE_PROJECT_ID=your-project-id
 VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
-VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
 
-# Razorpay Configuration
-VITE_RAZORPAY_KEY_ID=your-razorpay-key
-VITE_RAZORPAY_KEY_SECRET=your-razorpay-secret
+# Razorpay Configuration (Public Key only)
+VITE_RAZORPAY_KEY_ID=your-razorpay-key-id
 
-# API Configuration
-VITE_API_URL=http://localhost:3000/api
+# Backend API URL
+VITE_API_BASE_URL=http://localhost:5000
+
+# Security
+VITE_CORE_MEMBERS_DATA=base64_encoded_data
+VITE_SECURITY_SALT=your_security_salt
+VITE_APP_ENV=development
 ```
 
 4. **Run the development server**
@@ -69,10 +87,66 @@ VITE_API_URL=http://localhost:3000/api
 npm run dev
 ```
 
-5. **Build for production**
+### Backend Setup
+
+1. **Navigate to backend directory**
+```bash
+cd backend
+```
+
+2. **Install backend dependencies**
+```bash
+npm install
+```
+
+3. **Set up backend environment variables**
+Create a `.env` file in the backend directory:
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Razorpay Credentials (REQUIRED)
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+
+# CORS Configuration
+FRONTEND_URL=http://localhost:5173
+
+# Firebase Admin SDK (Optional)
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
+```
+
+4. **Run the backend server**
+```bash
+npm run dev
+```
+
+The backend will run on http://localhost:5000
+
+### Quick Start (Both Servers)
+
+Terminal 1 - Frontend:
+```bash
+npm run dev
+```
+
+Terminal 2 - Backend:
+```bash
+npm run backend:dev
+```
+
+### Build for Production
 ```bash
 npm run build
 ```
+
+For detailed backend setup and API documentation, see:
+- [Backend README](./backend/README.md)
+- [Backend Integration Guide](./BACKEND_INTEGRATION.md)
+- [Quick Start Guide](./backend/QUICK_START.md)
 
 ## 🎨 Design Improvements
 
@@ -96,6 +170,35 @@ npm run build
 - Smooth page transitions
 - Loading skeletons for better UX
 
+## 🏗️ Architecture
+
+### Frontend Architecture
+- **React 18** with hooks and functional components
+- **React Router** for client-side routing
+- **Context API** for state management (Auth, Theme, Admin)
+- **Custom hooks** for business logic encapsulation
+- **Service layer** for API and Firebase interactions
+- **Component library** with reusable UI primitives
+
+### Backend Architecture
+```
+backend/
+├── config/           # Configuration files (Firebase, Razorpay)
+├── controllers/      # Request handlers and business logic
+├── middleware/       # Authentication, validation, error handling
+├── routes/          # API route definitions
+├── services/        # Business logic layer (Payment service)
+└── utils/           # Helper functions and utilities
+```
+
+### API Endpoints
+- `POST /api/payments/create-order` - Create Razorpay order
+- `POST /api/payments/verify-payment` - Verify payment signature
+- `GET /api/payments/payment/:id` - Get payment details
+- `GET /api/payments/order/:id` - Get order details
+- `POST /api/payments/webhook` - Razorpay webhook handler
+- `GET /health` - Health check endpoint
+
 ## 📱 Pages
 
 1. **Home**: Hero section, About, Features, Highlights, Testimonials, CTA
@@ -103,7 +206,8 @@ npm run build
 3. **Team**: Faculty and student team with modal views
 4. **Profile**: User dashboard with membership status
 5. **Recruit**: Membership registration with payment
-6. **404**: Custom not found page
+6. **Admin**: Dashboard, Users, Events, Members, Payments management
+7. **404**: Custom not found page
 
 ## 🔧 Key Components
 
@@ -130,11 +234,23 @@ npm run build
 
 ## 🔐 Security
 
+### Frontend Security
 - Firebase Authentication for secure sign-in
 - Protected routes for authenticated users
-- Secure payment processing with Razorpay
 - Environment variables for sensitive data
 - Input validation and sanitization
+- CSP headers and security middleware
+- Rate limiting and CSRF protection
+
+### Backend Security
+- HMAC SHA256 signature verification for payments
+- Express Validator for input validation
+- Helmet.js for security headers
+- CORS protection with configurable origins
+- Rate limiting (100 requests/15 min)
+- Firebase Admin SDK for secure authentication
+- Transaction tracking and audit logging
+- Secure webhook signature verification
 
 ## 🚀 Performance
 
